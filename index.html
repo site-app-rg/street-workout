@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f1115">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%23ff8a3d%27/%3E%3Crect x=%274%27 y=%279%27 width=%275%27 height=%2714%27 rx=%271.5%27 fill=%27%231a0f07%27/%3E%3Crect x=%2723%27 y=%279%27 width=%275%27 height=%2714%27 rx=%271.5%27 fill=%27%231a0f07%27/%3E%3Crect x=%279%27 y=%2714.5%27 width=%2714%27 height=%273%27 fill=%27%231a0f07%27/%3E%3C/svg%3E">
+<title>Тренировки A · B · C</title>
+<style>
+:root{
+  --bg:#0f1115; --card:#181b22; --line:#262a33; --text:#eceef2; --muted:#9aa1ad;
+  --accent:#ff8a3d; --accent-soft:rgba(255,138,61,.14); --bad:#ff5d5d;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 -apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px 40px}
+.tabs{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;gap:6px;padding:12px 0 10px;border-bottom:1px solid var(--line)}
+.tabs button{flex:1;background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:8px 4px;font:inherit;cursor:pointer;line-height:1.2}
+.tabs button b{display:block;font-size:17px}
+.tabs button span{font-size:12px;color:var(--muted)}
+.tabs button.on{border-color:var(--accent);background:var(--accent-soft)}
+.tabs button.on b{color:var(--accent)}
+header h1{font-size:22px;margin:16px 0 2px}
+header p{margin:0;color:var(--muted);font-size:13.5px}
+.box{margin-top:14px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px;font-size:14px}
+.box h3{margin:0 0 4px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;margin-top:16px}
+.top{display:flex;align-items:baseline;gap:10px}
+.num{font-size:13px;font-weight:700;color:var(--bg);background:var(--accent);border-radius:8px;padding:2px 8px;flex:none}
+.card h2{font-size:18px;margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 12px}
+.chip{background:#20242d;border-radius:999px;padding:4px 10px;font-size:13px}
+.chip b{color:var(--accent)}
+.stage{position:relative;border-radius:14px;overflow:hidden;background:#12151b;aspect-ratio:3/2}
+.stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .45s}
+.stage svg{width:100%;height:100%;display:block}
+.tag{position:absolute;left:10px;top:10px;background:rgba(0,0,0,.65);border-radius:8px;padding:3px 9px;font-size:13px;font-weight:600}
+.ctrl{display:flex;gap:6px;margin-top:8px}
+.ctrl button{flex:1;background:#20242d;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px;font:inherit;font-size:14px;cursor:pointer}
+.ctrl button.on{border-color:var(--accent);color:var(--accent)}
+.vid{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;padding:10px;border-radius:10px;background:#2a1c1c;border:1px solid #5a2b2b;color:#ff6b6b;text-decoration:none;font-weight:600;font-size:14px}
+.vid small{color:var(--muted);font-weight:400}
+.note{margin:10px 0 0;background:var(--accent-soft);border-left:3px solid var(--accent);border-radius:8px;padding:8px 10px;font-size:13.5px}
+h3{font-size:14px;margin:14px 0 6px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.box h3{color:var(--accent)}
+ol,ul{margin:0;padding-left:20px}
+li{margin:4px 0}
+.muscles{display:flex;flex-wrap:wrap;gap:6px}
+.muscles span{border:1px solid var(--accent);color:var(--accent);border-radius:999px;padding:2px 10px;font-size:13px}
+.err li::marker{content:"✕  ";color:var(--bad)}
+.log{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.log span{font-size:13px;color:var(--muted);margin-right:4px}
+.log input{width:50px;height:44px;text-align:center;font:600 18px/1 inherit;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px}
+.log input::placeholder{color:#555c68;font-weight:400}
+.log input:focus,.send textarea:focus{outline:none;border-color:var(--accent)}
+.send textarea{width:100%;margin:6px 0 8px;padding:8px 10px;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;font:inherit;resize:vertical}
+.send button{width:100%;margin-top:6px;padding:11px;border-radius:12px;border:1px solid var(--line);background:#20242d;color:var(--text);font:inherit;cursor:pointer}
+.send button.big{background:var(--accent);border-color:var(--accent);color:#1a0f07;font-weight:700}
+#status{margin:8px 0 0;color:var(--accent);min-height:1em}
+.hint{margin:6px 0 0;color:var(--muted);font-size:12.5px}
+.src{margin-top:24px;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="tabs" id="tabs"></nav>
+  <main id="app"></main>
+  <p class="src">График: ПН — A, СР — B, ПТ — C. Фото: free-exercise-db (общественное достояние). Схема пайк-отжиманий нарисована для этой страницы. Видео открываются на YouTube (Tom Peto Training, FIT Sisters, Breaking Muscle, Jordan Schaeffer Fitness, TylerPath), для них нужен интернет.</p>
+</div>
+
+<script>
+/* ================= ДАННЫЕ ================= */
+// ph: [старт, низ/финиш] — фото; pic:'pike' — нарисованная схема; one: одно фото без движения
+const EX = {
+  pullW:{n:'Подтягивания широким хватом', ph:['pullup_0','pullup_1'], lab:['Вис','Верх'],
+    mus:['широчайшие','верх спины','бицепс'],
+    tech:['Хват сверху, шире плеч, ладони от себя.','Тяни локти вниз к рёбрам, грудь идёт к перекладине.','Вверх около 1 сек, вниз около 3 сек, до прямых рук.','Без раскачки и рывков ногами.'],
+    err:['Рывок ногами и раскачка.','Полувис: не опускаешься до прямых рук.']},
+  pike:{n:'Пайк-отжимания, ноги на наклонной скамье', pic:'pike', lab:['Старт','Низ'],
+    mus:['плечи (передняя и средняя дельта)','трицепс','верх груди'],
+    tech:['Носки на скамье, ладони на земле чуть шире плеч. Таз как можно выше: тело похоже на перевёрнутую букву «V».','Чем выше по наклонной скамье стоят ноги, тем тяжелее.','Опускайся головой вперёд-вниз, в точку чуть впереди ладоней. Голова и ладони образуют треугольник.','Локти уходят назад, примерно под 45° к корпусу, а не в стороны. Почти коснись лбом земли и выжми себя вверх.'],
+    err:['Таз опускается, и получается обычное отжимание: плечи почти не работают.','Локти разъезжаются в стороны.'],
+    note:'Схема, а не фото: в открытых базах снимков этого упражнения нет. Оранжевым отмечено то, что работает.',
+    vid:['https://www.youtube.com/watch?v=8URA3YSur2M','YouTube, ноги на тумбе']},
+  ausW:{n:'Австралийские подтягивания, широкий хват', ph:['aus_0','aus_1'], lab:['Старт','Финиш'],
+    mus:['верх спины','задняя дельта','широчайшие'],
+    tech:['Перекладина на уровне груди, хват сверху шире плеч.','Тело прямое от пяток до плеч, как доска.','Тяни грудь к перекладине, локти в стороны.','Вверху сведи лопатки, вниз медленно.'],
+    err:['Таз провисает.','Тянешь шеей и плечами, а не спиной.'],
+    note:'На фото колени согнуты. У тебя ноги прямые, пятки на земле.',
+    vid:['https://www.youtube.com/watch?v=bHO0A4ZF_Zg','YouTube, прямые ноги на перекладине']},
+  ausN:{n:'Австралийские подтягивания, нейтральный хват', ph:['ausn_0','ausn_1'], lab:['Старт','Финиш'],
+    mus:['широчайшие','верх спины','бицепс'],
+    tech:['Ладони смотрят друг на друга, хват узкий.','Тело прямое, как доска.','Локти идут вдоль корпуса, тяни к нижней части груди.','Вверху сведи лопатки, вниз медленно.'],
+    err:['Тянешь шеей и плечами вместо спины.','Таз провисает.'],
+    note:'На фото петли и согнутые колени. У тебя перекладина и прямые ноги.',
+    vid:['https://www.youtube.com/watch?v=bHO0A4ZF_Zg','YouTube, у тебя хват ладонями друг к другу']},
+  bul:{n:'Болгарские приседания', ph:['bulg_0','bulg_1'], lab:['Верх','Низ'],
+    mus:['квадрицепс','ягодицы','приводящие мышцы бедра'],
+    tech:['Встань спиной к скамье примерно в большом шаге от неё, носок задней ноги положи на скамью.','Опускайся 2 сек прямо вниз, до угла ~90° в переднем колене. Заднее колено идёт к земле.','Колено передней ноги смотрит туда же, куда носок.','Корпус чуть вперёд, вес на передней ноге. Вставай, толкаясь пяткой.'],
+    err:['Колено передней ноги заваливается внутрь.','Стопа слишком близко к скамье или слишком далеко.'],
+    note:'На фото задняя нога в петле. У тебя носок задней ноги лежит на скамье, само движение то же.',
+    vid:['https://www.youtube.com/shorts/dLPUEhOe7EI','YouTube Shorts, без веса']},
+  leg:{n:'Подъёмы ног в висе', ph:['legs_0','legs_1'], lab:['Вис','Верх'],
+    mus:['пресс','сгибатели бедра','хват'],
+    tech:['Вис на перекладине, руки прямые.','Перед подъёмом напряги пресс и ягодицы, чтобы не раскачиваться.','Поднимай почти прямые ноги до горизонтали.','Вниз медленно. 8 чистых повторов лучше, чем 10 с раскачкой.'],
+    err:['Раскачка корпуса.','Ноги бросаешь вниз, а не опускаешь.'],
+    note:'На фото облегчённый вариант, колени согнуты. Цель — почти прямые ноги. Если пока тяжело, начни с согнутых коленей.',
+    vid:['https://www.youtube.com/shorts/WFAziRYp2bg','YouTube Shorts, уличный турник']},
+  chest:{n:'Жим от груди сидя (тренажёр)', ph:['press_0','press_1'], lab:['Старт','Жим'],
+    mus:['грудь','трицепс','передняя дельта'],
+    tech:['Сядь ровно, спина прижата к спинке, хват на ширине плеч.','Толкай рукояти вперёд до почти прямых рук, локти до конца не выпрямляй.','Назад медленно, около 2 сек.','Не уводи локти резко за спину.'],
+    err:['Рывок корпусом вперёд: работать должны руки и грудь, а не раскачка телом.']},
+  dipC:{n:'Отжимания на брусьях, акцент на грудь', ph:['dipc_0','dipc_1'], lab:['Верх','Низ'],
+    mus:['низ груди','трицепс','передняя дельта'],
+    tech:['Корпус наклонён вперёд, ноги согнуты назад.','Локти чуть в стороны.','Вниз около 3 сек до угла ~90° в локтях.','Выжми себя вверх до прямых рук.'],
+    err:['Слишком глубоко: плечи «падают» вперёд, больно в плече.'],
+    vid:['https://www.youtube.com/shorts/3RhzseLhLVU','YouTube Shorts, грудь против трицепса']},
+  dipT:{n:'Отжимания на брусьях, акцент на трицепс', ph:['dipt_0','dipt_1'], lab:['Верх','Низ'],
+    mus:['трицепс','грудь','передняя дельта'],
+    tech:['Корпус почти вертикальный, не наклоняйся вперёд.','Локти прижаты к корпусу и уходят назад.','Вниз до угла ~90° в локтях.','Выжми себя вверх до прямых рук.'],
+    err:['Локти разъезжаются в стороны.','Корпус заваливается вперёд, и нагрузка уходит в грудь.'],
+    vid:['https://www.youtube.com/shorts/3RhzseLhLVU','YouTube Shorts, грудь против трицепса']},
+  pullR:{n:'Подтягивания обратным хватом', ph:['chinup_0','chinup_1'], lab:['Вис','Верх'],
+    mus:['бицепс','широчайшие'],
+    tech:['Хват снизу, на ширине плеч, ладони к себе.','Тяни локти вниз к рёбрам, корпус чуть назад.','Подбородок над перекладиной.','Вниз медленно, до прямых рук.'],
+    err:['Не доводишь подбородок до перекладины.','Рывок ногами.']},
+  pu:{n:'Отжимания, ноги на скамье', ph:['pushup_0','pushup_1'], lab:['Верх','Низ'],
+    mus:['верх груди','трицепс','передняя дельта'],
+    tech:['Ноги на скамье, руки чуть шире плеч.','Тело прямой линией от пяток до головы.','Локти под ~45° к корпусу, вниз 2 сек, грудь почти до земли.','Выжми вверх до прямых рук.'],
+    err:['Прогиб в пояснице.','Локти под 90° в стороны.']},
+  lun:{n:'Выпады на месте', ph:['split_squat_1','split_squat_0'], lab:['Верх','Низ'],
+    mus:['квадрицепс','ягодицы'],
+    tech:['Сделай шаг вперёд и стой в этой позиции весь подход.','Корпус прямой.','Опускайся до угла ~90° в переднем колене, заднее почти к земле.','Вставай без рывка, толкаясь передней ногой.'],
+    err:['Переднее колено уезжает далеко за носок.','Корпус падает вперёд.']},
+  plank:{n:'Планка на локтях', one:'plank',
+    mus:['пресс','кор','ягодицы'],
+    tech:['Локти под плечами.','Ягодицы и пресс напряжены, тело прямой линией.','Дыши ровно, не задерживай дыхание.'],
+    err:['Провисает поясница: тогда заканчивай подход. Качество важнее секунд.','Таз задран вверх.']}
+};
+
+const DAYS = {
+  A:{t:'Тренировка A', d:'ПН · тяга и плечи', list:[
+    ['pullW','4','6–8','2:30'], ['pike','3','6–10','2:00'], ['ausW','3','10–12','1:30'],
+    ['bul','3','10 на ногу','1:30'], ['leg','3','8–10','1:00'], ['chest','3','12–15','1:30']]},
+  B:{t:'Тренировка B', d:'СР · жим и ноги', list:[
+    ['dipC','4','8–12','2:00'], ['pullR','3','6–8','2:00–2:30'], ['pu','3','10–15','1:30'],
+    ['lun','3','10 на ногу','1:30'], ['plank','3','45–60 сек','1:00']]},
+  C:{t:'Тренировка C', d:'ПТ · сила и плечи', list:[
+    ['pullW','3','5–6, пауза 1 сек вверху','2:30'], ['pike','3','6–10','2:00'], ['dipT','3','8–10','2:00'],
+    ['ausN','3','10–12','1:30'], ['bul','3','8–10 на ногу','1:30'], ['leg','3','8–10','1:00'],
+    ['chest','3','10, медленнее','2:00']]}
+};
+
+/* ================= СХЕМА ПАЙК-ОТЖИМАНИЙ ================= */
+const L={upper:38.5, fore:38.5, thigh:56.5, shin:56.5, torso:70};
+const HAND=[220,198], ANKLE=[100,120], TOE=[109,130];
+const POSES=[{hip:[190,56],ang:72},{hip:[208,88],ang:78}];
+const rad=d=>d*Math.PI/180;
+function ik(a,b,l1,l2,side){
+  const dx=b[0]-a[0], dy=b[1]-a[1], d=Math.min(Math.hypot(dx,dy), l1+l2-0.01);
+  const x=(l1*l1-l2*l2+d*d)/(2*d), h=Math.sqrt(Math.max(0,l1*l1-x*x)), ux=dx/d, uy=dy/d;
+  return [a[0]+ux*x-side*uy*h, a[1]+uy*x+side*ux*h];
+}
+function pikePose(t){
+  const p=POSES[0], q=POSES[1], m=(a,b)=>a+(b-a)*t;
+  const hip=[m(p.hip[0],q.hip[0]), m(p.hip[1],q.hip[1])], a=rad(m(p.ang,q.ang));
+  const sh=[hip[0]+L.torso*Math.cos(a), hip[1]+L.torso*Math.sin(a)];
+  return {hip, sh, head:[sh[0]+19*Math.cos(a), sh[1]+19*Math.sin(a)],
+    elbow:ik(sh,HAND,L.upper,L.fore,1),        // локоть назад, к ногам
+    knee:ik(hip,ANKLE,L.thigh,L.shin,-1)};     // колени почти прямые
+}
+const seg=(a,b,w,c)=>`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`;
+const BODY='#c9ced8', FAR='#6d7481', HOT='#ff8a3d', HOT_FAR='#a85a2a';
+const SCENE=`<line x1="0" y1="199" x2="300" y2="199" stroke="#2c313b" stroke-width="2"/>
+  <polygon points="30,199 30,138 132,128 132,199" fill="#3a2e25"/>
+  <polygon points="30,138 132,128 132,133 30,143" fill="#7a5a3f"/>
+  <line x1="40" y1="143" x2="40" y2="199" stroke="#5a4431" stroke-width="5"/>
+  <line x1="122" y1="133" x2="122" y2="199" stroke="#5a4431" stroke-width="5"/>`;
+function pikeSvg(t){
+  const P=pikePose(t), off=p=>[p[0]-5,p[1]-3];
+  let s=SCENE;
+  s+=seg(off(P.hip),off(P.knee),13,FAR)+seg(off(P.knee),off(ANKLE),11,FAR);
+  s+=seg(off(P.sh),off(P.elbow),12,HOT_FAR)+seg(off(P.elbow),off(HAND),10,FAR);
+  s+=seg(P.hip,P.knee,14,BODY)+seg(P.knee,ANKLE,12,BODY)+seg(ANKLE,TOE,8,BODY);
+  s+=seg(P.hip,P.sh,24,BODY);
+  s+=`<circle cx="${P.sh[0]}" cy="${P.sh[1]}" r="10" fill="${HOT}"/>`;
+  s+=seg(P.sh,P.elbow,12,HOT)+seg(P.elbow,HAND,10,BODY)+seg(HAND,[HAND[0]+9,HAND[1]],6,BODY);
+  s+=`<circle cx="${P.head[0]}" cy="${P.head[1]}" r="12" fill="${BODY}" stroke="#181b22" stroke-width="2.5"/>`;
+  return s;
+}
+
+/* ================= РАЗМЕТКА ================= */
+function card(item,i){
+  const [k,sets,reps,rest]=item, e=EX[k];
+  let stage='', ctrl='';
+  if(e.one){
+    stage=`<div class="stage"><img loading="lazy" src="img/${e.one}.jpg" alt="${e.n}"></div>`;
+  }else{
+    const inner = e.pic ? `<svg viewBox="4 40 258 172" data-pic="${e.pic}"></svg>`
+      : `<img loading="lazy" src="img/${e.ph[0]}.jpg" alt="${e.n}, ${e.lab[0]}"><img loading="lazy" src="img/${e.ph[1]}.jpg" alt="${e.n}, ${e.lab[1]}" class="b" style="opacity:0">`;
+    stage=`<div class="stage">${inner}<span class="tag">${e.lab[0]}</span></div>`;
+    ctrl=`<div class="ctrl"><button data-m="play" class="on">▶ Движение</button><button data-m="0">${e.lab[0]}</button><button data-m="1">${e.lab[1]}</button></div>`;
+  }
+  const vid = e.vid ? `<a class="vid" href="${e.vid[0]}" target="_blank" rel="noopener">▶ Видео техники <small>${e.vid[1]}</small></a>` : '';
+  return `<section class="card" data-lab='${JSON.stringify(e.lab||[])}'>
+    <div class="top"><span class="num">${i+1}</span><h2>${e.n}</h2></div>
+    <div class="chips"><span class="chip"><b>${sets}</b> подхода</span><span class="chip"><b>${reps}</b>${/^[\d–]+$/.test(reps)?' повторений':''}</span><span class="chip">отдых <b>${rest}</b></span></div>
+    <div class="log"><span>${k==='plank'?'Сделал, сек':'Сделал, повт.'}</span>${Array.from({length:+sets},(_,j)=>
+      `<input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" data-i="${i}" data-s="${j}" aria-label="${e.n}, подход ${j+1}">`).join('')}</div>
+    ${stage}${ctrl}${vid}
+    ${e.note?`<p class="note">${e.note}</p>`:''}
+    <h3>Работают</h3><div class="muscles">${e.mus.map(m=>`<span>${m}</span>`).join('')}</div>
+    <h3>Техника</h3><ol>${e.tech.map(x=>`<li>${x}</li>`).join('')}</ol>
+    <h3>Частые ошибки</h3><ul class="err">${e.err.map(x=>`<li>${x}</li>`).join('')}</ul>
+  </section>`;
+}
+function render(w){
+  const D=DAYS[w];
+  document.getElementById('app').innerHTML = `
+    <header><h1>${D.t}</h1><p>${D.d}</p></header>
+    <div class="box"><h3>Разминка 5–10 мин</h3>Круги плечами и локтями, кошка-корова, вис на турнике 2 × 20 сек, 10 лёгких отжиманий, 10 приседаний.</div>
+    ${D.list.map(card).join('')}
+    <div class="box"><h3>После силовой</h3><ul><li>Быстрая ходьба 5–10 минут + заминка, растяжка плеч и груди.</li><li>Пустые прыжки для скакалки: 3 × 30 сек, отдых 30 сек. Невысоко, с носка.</li></ul></div>
+    <div class="box"><h3>Правила</h3><ul><li>Оставляй 1–2 повторения в запасе, в отказ не идём.</li><li>Все подходы дошли до верха диапазона — на следующей неделе усложни (медленнее, пауза, вариант труднее).</li><li>Плохо спал или разбит — минус 1 подход в каждом упражнении.</li></ul></div>
+    <div class="box send"><h3>Результаты тренировки</h3>
+      <textarea id="note" rows="2" placeholder="Заметка: самочувствие, что было тяжело…"></textarea>
+      <button id="share" class="big">Отправить результаты</button>
+      <button id="copy">Скопировать текстом</button>
+      <p id="status"></p>
+      <p class="hint">Серые цифры в окошках — сколько сделал в прошлый раз. Записи хранятся только в этом браузере на телефоне.</p>
+    </div>`;
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.w===w));
+  setupPlayers();
+  setupLog(w);
+  scrollTo(0,0);
+}
+
+/* ================= АНИМАЦИЯ ================= */
+let players=[];
+function setupPlayers(){
+  players=[...document.querySelectorAll('.card')].filter(c=>c.querySelector('.ctrl')).map(c=>{
+    const p={c, mode:'play', t0:performance.now(), cur:-1, lab:JSON.parse(c.dataset.lab),
+      svg:c.querySelector('svg'), b:c.querySelector('img.b'), tag:c.querySelector('.tag')};
+    c.querySelectorAll('.ctrl button').forEach(btn=>btn.onclick=()=>{
+      p.mode=btn.dataset.m; if(p.mode==='play') p.t0=performance.now();
+      c.querySelectorAll('.ctrl button').forEach(x=>x.classList.toggle('on',x===btn));
+    });
+    return p;
+  });
+}
+const ease=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
+function frame(now){
+  for(const p of players){
+    let t;
+    if(p.mode==='play'){
+      // цикл 3.4 с: пауза в старте, движение 1.3, пауза, возврат 1.1
+      const c=((now-p.t0)/1000)%3.4;
+      t = c<0.6?0 : c<1.9?ease((c-0.6)/1.3) : c<2.3?1 : 1-ease((c-2.3)/1.1);
+    } else t=+p.mode;
+    if(t===p.cur) continue;
+    p.cur=t;
+    if(p.svg) p.svg.innerHTML=pikeSvg(t);
+    if(p.b) p.b.style.opacity = t<0.5?0:1;
+    p.tag.textContent = p.lab[t<0.5?0:1];
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ================= ЗАПИСЬ ПОДХОДОВ ================= */
+// хранится в localStorage телефона: ключ sw:<тренировка>:<дата>, значение {r:[[повторы по подходам]...], note}
+const pad=n=>String(n).padStart(2,'0');
+const dateKey=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const store={
+  get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(_){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); return true; }catch(_){ return false; } },
+  keys(){ try{ return Object.keys(localStorage); }catch(_){ return []; } },
+  del(k){ try{ localStorage.removeItem(k); }catch(_){} }
+};
+function setupLog(w){
+  const today=dateKey(new Date()), key=`sw:${w}:${today}`;
+  const all=store.keys().filter(k=>k.startsWith(`sw:${w}:`)).sort();
+  const prevKey=all.filter(k=>k<key).pop(), prev=prevKey&&store.get(prevKey);
+  const data=store.get(key)||{r:[],note:''};
+  // старые записи дольше 120 дней не нужны
+  const old=dateKey(new Date(Date.now()-120*864e5));
+  store.keys().filter(k=>k.startsWith('sw:')&&k.split(':')[2]<old).forEach(store.del);
+
+  document.querySelectorAll('.log input').forEach(inp=>{
+    const i=+inp.dataset.i, s=+inp.dataset.s;
+    inp.value=(data.r[i]||[])[s]||'';
+    inp.placeholder=prev&&prev.r[i]&&prev.r[i][s]||'';
+    inp.oninput=()=>{
+      inp.value=inp.value.replace(/\D/g,'');
+      (data.r[i]=data.r[i]||[])[s]=inp.value;
+      store.set(key,data);
+    };
+  });
+  const note=document.getElementById('note');
+  note.value=data.note||'';
+  note.oninput=()=>{ data.note=note.value; store.set(key,data); };
+
+  const status=document.getElementById('status');
+  const say=t=>{ status.textContent=t; setTimeout(()=>{ if(status.textContent===t) status.textContent=''; },4000); };
+  function text(){
+    const D=DAYS[w], [y,m,d]=today.split('-');
+    const lines=D.list.map(([k,sets,reps],i)=>{
+      const got=Array.from({length:+sets},(_,s)=>(data.r[i]||[])[s]||'—');
+      return `${i+1}. ${EX[k].n} (план ${sets} × ${reps}): ${got.join(', ')}`;
+    });
+    return `${D.t} (${D.d}), ${d}.${m}.${y}\n${lines.join('\n')}`+(data.note?`\nЗаметка: ${data.note}`:'');
+  }
+  async function copy(){
+    const t=text();
+    try{ await navigator.clipboard.writeText(t); }
+    catch(_){ // запасной способ для старых браузеров
+      const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta);
+      ta.select(); document.execCommand('copy'); ta.remove();
+    }
+    say('Скопировано. Вставь в чат с Claude.');
+  }
+  document.getElementById('copy').onclick=copy;
+  const share=document.getElementById('share');
+  if(navigator.share){
+    share.onclick=async()=>{ try{ await navigator.share({text:text()}); }catch(e){ if(e.name!=='AbortError') copy(); } };
+  }else share.onclick=copy;
+}
+
+/* ================= ВКЛАДКИ ================= */
+document.getElementById('tabs').innerHTML = Object.entries(DAYS)
+  .map(([w,D])=>`<button data-w="${w}"><b>${w}</b><span>${D.d.split(' · ')[0]}</span></button>`).join('');
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{ location.hash=b.dataset.w; });
+// без выбора открываем сегодняшнюю или ближайшую тренировку: СБ–ПН → A, ВТ–СР → B, ЧТ–ПТ → C
+function today(){ return ['A','A','B','B','C','C','A'][new Date().getDay()]; }
+function route(){ const w=location.hash.slice(1).toUpperCase(); render(DAYS[w]?w:today()); }
+addEventListener('hashchange',route);
+route();
+</script>
+</body>
+</html>
