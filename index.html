@@ -52,7 +52,9 @@ li{margin:4px 0}
 .log span{font-size:13px;color:var(--muted);margin-right:4px}
 .log input{width:50px;height:44px;text-align:center;font:600 18px/1 inherit;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px}
 .log input::placeholder{color:#555c68;font-weight:400}
-.log input:focus,.send textarea:focus{outline:none;border-color:var(--accent)}
+.log input:focus,.send textarea:focus,.exercise-note textarea:focus{outline:none;border-color:var(--accent)}
+.exercise-note{display:block;margin:0 0 12px;color:var(--muted);font-size:13px}
+.exercise-note textarea{display:block;width:100%;margin-top:5px;padding:8px 10px;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;font:inherit;resize:vertical}
 .send textarea{width:100%;margin:6px 0 8px;padding:8px 10px;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;font:inherit;resize:vertical}
 .send button{width:100%;margin-top:6px;padding:11px;border-radius:12px;border:1px solid var(--line);background:#20242d;color:var(--text);font:inherit;cursor:pointer}
 .send button.big{background:var(--accent);border-color:var(--accent);color:#1a0f07;font-weight:700}
@@ -119,7 +121,7 @@ const EX = {
     vid:['https://www.youtube.com/shorts/WFAziRYp2bg','YouTube Shorts, уличный турник']},
   chest:{n:'Жим от груди сидя (тренажёр)', ph:['press_0','press_1'], lab:['Старт','Жим'],
     mus:['грудь','трицепс','передняя дельта'],
-    tech:['Сядь ровно, спина прижата к спинке, хват на ширине плеч.','Толкай рукояти вперёд до почти прямых рук, локти до конца не выпрямляй.','Возвращай рукояти 3 сек и сделай паузу 1 сек у груди.','Не уводи локти резко за спину.'],
+    tech:['Сядь ровно, спина прижата к спинке, хват на ширине плеч.','Толкай рукояти вперёд до почти прямых рук, локти до конца не выпрямляй.','Возвращай рукояти 3 сек; пауза у груди: в A — 2 сек, в C — 1 сек.','Не уводи локти резко за спину.'],
     err:['Рывок корпусом вперёд: работать должны руки и грудь, а не раскачка телом.']},
   dipC:{n:'Отжимания на брусьях, акцент на грудь', ph:['dipc_0','dipc_1'], lab:['Верх','Низ'],
     mus:['низ груди','трицепс','передняя дельта'],
@@ -153,7 +155,7 @@ const DAYS = {
   A:{t:'Тренировка A', d:'ПН · тяга и плечи', list:[
     ['pullW','4','6–8','2:30'], ['pike','3','6–10, ноги выше по скамье','2:00'],
     ['ausW','3','10–12, пауза 2 сек вверху + вниз 3 сек','1:30'],
-    ['chest','3','12–15, назад 3 сек + пауза 1 сек у груди','1:30'],
+    ['chest','3','12–15, назад 3 сек + пауза 2 сек у груди','1:30'],
     ['bul','3','10–12 на ногу, вниз 3 сек + пауза 1 сек','1:30'], ['leg','3','8–10, вниз 3 сек','1:00']]},
   B:{t:'Тренировка B', d:'СР · жим и ноги', list:[
     ['dipC','4','8–12','2:00'], ['pullR','3','6–8','2:00–2:30'], ['pu','3','10–15','1:30'],
@@ -221,6 +223,7 @@ function card(item,i){
     <div class="chips"><span class="chip"><b>${sets}</b> подхода</span><span class="chip"><b>${reps}</b>${/^[\d–]+$/.test(reps)?' повторений':''}</span><span class="chip">отдых <b>${rest}</b></span></div>
     <div class="log"><span>${k==='plank'?'Сделал, сек':'Сделал, повт.'}</span>${Array.from({length:+sets},(_,j)=>
       `<input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" data-i="${i}" data-s="${j}" aria-label="${e.n}, подход ${j+1}">`).join('')}</div>
+    <label class="exercise-note">Ощущения по упражнению<textarea rows="2" data-exercise-note="${k}" placeholder="Что было тяжело, какие мышцы устали…"></textarea></label>
     ${stage}${ctrl}${vid}
     ${e.note?`<p class="note">${e.note}</p>`:''}
     <h3>Работают</h3><div class="muscles">${e.mus.map(m=>`<span>${m}</span>`).join('')}</div>
@@ -282,7 +285,7 @@ function frame(now){
 requestAnimationFrame(frame);
 
 /* ================= ЗАПИСЬ ПОДХОДОВ ================= */
-// хранится в localStorage телефона: ключ sw:<тренировка>:<дата>, значение {x:{упражнение:[повторы по подходам]}, note}
+// хранится в localStorage телефона: ключ sw:<тренировка>:<дата>, значение {x:{упражнение:[повторы по подходам]}, notes:{упражнение:ощущения}, note}
 // до 05.10.2026 записи хранились по номеру упражнения (r:[...]); LEGACY — порядок упражнений тогда
 const LEGACY={A:['pullW','pike','ausW','bul','leg','chest'], B:['dipC','pullR','pu','lun','plank'],
   C:['pullW','pike','dipT','ausN','bul','leg','chest']};
@@ -290,7 +293,7 @@ function byKey(rec,w){
   if(!rec) return null;
   if(rec.x) return rec;
   const x={}; (rec.r||[]).forEach((v,i)=>{ const k=LEGACY[w][i]; if(k&&v) x[k]=v; });
-  return {x, note:rec.note||''};
+  return {x, notes:rec.notes||{}, note:rec.note||''};
 }
 const pad=n=>String(n).padStart(2,'0');
 const dateKey=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -304,8 +307,9 @@ function setupLog(w){
   const today=dateKey(new Date()), key=`sw:${w}:${today}`;
   const all=store.keys().filter(k=>k.startsWith(`sw:${w}:`)).sort();
   const prevKey=all.filter(k=>k<key).pop(), prev=byKey(prevKey&&store.get(prevKey),w);
-  const data=byKey(store.get(key),w)||{x:{},note:''};
-const keyOf=i=>DAYS[w].list[i][0];
+  const data=byKey(store.get(key),w)||{x:{},notes:{},note:''};
+  data.notes=data.notes||{};
+  const keyOf=i=>DAYS[w].list[i][0];
   // старые записи дольше 120 дней не нужны
   const old=dateKey(new Date(Date.now()-120*864e5));
   store.keys().filter(k=>k.startsWith('sw:')&&k.split(':')[2]<old).forEach(store.del);
@@ -321,6 +325,11 @@ const keyOf=i=>DAYS[w].list[i][0];
       store.set(key,data);
     };
   });
+  document.querySelectorAll('[data-exercise-note]').forEach(inp=>{
+    const k=inp.dataset.exerciseNote;
+    inp.value=data.notes[k]||'';
+    inp.oninput=()=>{ data.notes[k]=inp.value; store.set(key,data); };
+  });
   const note=document.getElementById('note');
   note.value=data.note||'';
   note.oninput=()=>{ data.note=note.value; store.set(key,data); };
@@ -331,7 +340,9 @@ const keyOf=i=>DAYS[w].list[i][0];
     const D=DAYS[w], [y,m,d]=today.split('-');
     const lines=D.list.map(([k,sets,reps],i)=>{
       const got=Array.from({length:+sets},(_,s)=>(data.x[k]||[])[s]||'—');
-      return `${i+1}. ${EX[k].n} (план ${sets} × ${reps}): ${got.join(', ')}`;
+      const feeling=(data.notes[k]||'').trim();
+      return `${i+1}. ${EX[k].n} (план ${sets} × ${reps}): ${got.join(', ')}`+
+        (feeling?`\n   Ощущения: ${feeling}`:'');
     });
     return `${D.t} (${D.d}), ${d}.${m}.${y}\n${lines.join('\n')}`+(data.note?`\nЗаметка: ${data.note}`:'');
   }
